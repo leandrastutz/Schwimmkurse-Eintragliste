@@ -695,11 +695,11 @@
   const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
   let counts = {
-    'Krebs': 2,
-    'Seepferd': 1,
-    'Frosch': 3,
-    'Pinguin': 2,
-    'Schwimmschule': 1
+    'Krebs': 0,
+    'Seepferd': 0,
+    'Frosch': 0,
+    'Pinguin': 0,
+    'Schwimmschule': 0
   };
 
   let state = {
@@ -1009,6 +1009,33 @@
   // ==== INIT ====
   renderCourses();
   renderDays();
+
+  // ==== LIVE-ZÄHLER ====
+  const POLL_INTERVAL_MS = 15000;
+
+  async function fetchCounts() {
+    try {
+      const response = await fetch(POWER_AUTOMATE_URL, { method: 'GET' });
+      if (!response.ok) return;
+      const freshCounts = await response.json();
+      let changed = false;
+      COURSES.forEach(course => {
+        const newCount = freshCounts[course];
+        if (typeof newCount === 'number' && newCount !== counts[course]) {
+          counts[course] = newCount;
+          changed = true;
+        }
+      });
+      if (changed) {
+        renderCourses();
+      }
+    } catch (err) {
+      // Netzwerkfehler ignorieren, beim nächsten Poll erneut versuchen
+    }
+  }
+
+  fetchCounts();
+  setInterval(fetchCounts, POLL_INTERVAL_MS);
 </script>
 
 </body>
