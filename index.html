@@ -1052,15 +1052,6 @@
     }
   }
 
-  function registerPollFailure() {
-    pollFailureCount++;
-    if (pollFailureCount >= MAX_FAILURES && pollTimerId) {
-      console.error('Live-Zähler-Abfrage wird nach ' + MAX_FAILURES + ' Fehlversuchen gestoppt. Bitte Google-Skript-Bereitstellung prüfen.');
-      clearInterval(pollTimerId);
-      pollTimerId = null;
-    }
-  }
-
   fetchCounts();
   pollTimerId = setInterval(fetchCounts, POLL_INTERVAL_MS);
 </script>
