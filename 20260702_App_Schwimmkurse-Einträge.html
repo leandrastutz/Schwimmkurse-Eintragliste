@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏊 Schwimmkurse Anmeldung</title>
+<style>
+  :root {
+    --primary: #0099ff;
+    --secondary: #00ccff;
+    --gradient: linear-gradient(135deg, #0099ff 0%, #00ccff 100%);
+    --success: #4caf50;
+    --error: #f44336;
+    --warning: #ffc107;
+    --bg: #f8f9fa;
+    --border: #e0e0e0;
+    --text-dark: #333;
+    --text-medium: #555;
+    --text-light: #999;
+    --hover: rgba(0, 153, 255, 0.1);
+    --focus-shadow: 0 0 0 3px rgba(0, 153, 255, 0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-dark);
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  header {
+    background: var(--gradient);
+    color: #fff;
+    border-radius: 16px;
+    padding: 32px 40px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    margin-bottom: 6px;
+  }
+
+  header p {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    overflow: hidden;
+  }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    padding: 24px 40px 0 40px;
+  }
+
+  .step-indicator .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+  }
+
+  .step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    transition: all 0.3s ease;
+  }
+
+  .step.active .step-circle {
+    background: var(--gradient);
+    color: #fff;
+  }
+
+  .step.done .step-circle {
+    background: var(--success);
+    color: #fff;
+  }
+
+  .step-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  .step.active .step-label,
+  .step.done .step-label {
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .step-line {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    width: 100%;
+    height: 3px;
+    background: var(--border);
+    z-index: -1;
+  }
+
+  .step.done .step-line {
+    background: var(--success);
+  }
+
+  .step:last-child .step-line {
+    display: none;
+  }
+
+  .progress-bar-track {
+    height: 6px;
+    background: var(--border);
+    margin: 20px 40px 0 40px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: var(--gradient);
+    transition: width 0.3s ease;
+  }
+
+  .content {
+    padding: 40px;
+  }
+
+  @media (max-width: 640px) {
+    .content { padding: 24px 20px; }
+    .step-indicator { padding: 20px 16px 0 16px; }
+    .progress-bar-track { margin: 20px 16px 0 16px; }
+    header { padding: 24px 20px; }
+  }
+
+  h2.section-title {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: var(--text-dark);
+  }
+
+  .info-box {
+    background: #e3f2fd;
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-size: 0.92rem;
+    color: var(--text-medium);
+  }
+
+  /* Course cards */
+  .course-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .course-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .course-card:hover {
+    background: var(--hover);
+    border-color: var(--primary);
+  }
+
+  .course-card.selected {
+    border-color: var(--primary);
+    background: var(--hover);
+    box-shadow: var(--focus-shadow);
+  }
+
+  .course-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .radio-dot {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    position: relative;
+    transition: border-color 0.2s ease;
+  }
+
+  .course-card.selected .radio-dot {
+    border-color: var(--primary);
+  }
+
+  .course-card.selected .radio-dot::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .course-name {
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .counter {
+    font-size: 0.9rem;
+    color: var(--text-medium);
+    background: var(--bg);
+    padding: 6px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 22px;
+  }
+
+  .field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: all 0.2s ease;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus,
+  input[type="time"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: var(--focus-shadow);
+  }
+
+  textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .radio-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .radio-option:hover {
+    background: var(--hover);
+  }
+
+  .radio-option.selected {
+    border-color: var(--primary);
+    background: var(--hover);
+  }
+
+  .radio-option input { accent-color: var(--primary); }
+
+  /* Days */
+  .day-card {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .day-card {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+
+  .day-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+  }
+
+  .day-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+  }
+
+  .time-group label.time-label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-light);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  input[type="time"] {
+    width: 100%;
+    padding: 9px 10px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: #fff;
+    color: var(--text-dark);
+  }
+
+  input[type="time"]:disabled {
+    background: var(--bg);
+    color: var(--text-light);
+    border-color: var(--border);
+    cursor: not-allowed;
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    gap: 12px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 13px 26px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-primary {
+    background: var(--gradient);
+    color: #fff;
+    margin-left: auto;
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: #fff;
+    color: var(--text-medium);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--bg);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Messages */
+  .error-msg {
+    color: var(--error);
+    font-size: 0.85rem;
+    margin-top: 8px;
+    display: none;
+  }
+
+  .error-msg.show { display: block; }
+
+  .field.has-error input[type="text"],
+  .field.has-error textarea {
+    border-color: var(--error);
+  }
+
+  .banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    font-weight: 500;
+  }
+
+  .banner.show { display: flex; }
+
+  .banner.error {
+    background: #fdecea;
+    color: #c62828;
+    border-left: 4px solid var(--error);
+  }
+
+  .banner.success {
+    background: #edf7ed;
+    color: #2e7d32;
+    border-left: 4px solid var(--success);
+  }
+
+  /* Summary */
+  .summary-box {
+    background: #e3f2fd;
+    border-left: 4px solid var(--primary);
+    border-radius: 8px;
+    padding: 22px 24px;
+  }
+
+  .summary-block {
+    margin-bottom: 18px;
+  }
+
+  .summary-block:last-child { margin-bottom: 0; }
+
+  .summary-block h3 {
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-medium);
+    margin-bottom: 6px;
+  }
+
+  .summary-block p, .summary-block div.line {
+    font-size: 0.98rem;
+    color: var(--text-dark);
+  }
+
+  .summary-block div.line { margin-bottom: 2px; }
+
+  .success-screen {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .success-icon {
+    font-size: 3rem;
+    color: var(--success);
+    margin-bottom: 16px;
+  }
+
+  .success-screen h2 {
+    color: var(--success);
+    font-size: 1.3rem;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>🏊 Schwimmkurse</h1>
+    <p>Eintrag für Schwimmkurse</p>
+  </header>
+
+  <div class="card">
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step active" data-step="1">
+        <div class="step-line"></div>
+        <div class="step-circle">1</div>
+        <div class="step-label">Kurs</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-line"></div>
+        <div class="step-circle">2</div>
+        <div class="step-label">Verfügbarkeit</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-line"></div>
+        <div class="step-circle">3</div>
+        <div class="step-label">Übersicht</div>
+      </div>
+    </div>
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progressFill" style="width:33.33%"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- STEP 1 -->
+      <div id="step1">
+        <h2 class="section-title">Wähle deinen Kurs</h2>
+        <div class="info-box">
+          ℹ️ Hinweis: Du kannst hier einen Kurs auswählen. Falls du mehrere Kurse leiten möchtest, fülle das Formular einfach erneut aus.
+        </div>
+        <div class="banner error" id="step1Error">⚠ Bitte wählen Sie mindestens einen Kurs aus.</div>
+        <div class="course-grid" id="courseGrid"></div>
+        <div class="btn-row">
+          <button class="btn-primary" onclick="goToStep(2)">Weiter →</button>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div id="step2" class="hidden">
+        <h2 class="section-title">Deine Verfügbarkeit</h2>
+        <div class="banner error" id="step2Error"></div>
+
+        <div class="field" id="nameField">
+          <label for="nameInput">Dein Name *</label>
+          <input type="text" id="nameInput" placeholder="Vor- und Nachname">
+          <div class="error-msg" id="nameError">⚠ Bitte geben Sie deinen Namen ein.</div>
+        </div>
+
+        <div class="field" id="roleField">
+          <label>Rolle bei Schwimmschule *</label>
+          <div class="radio-group">
+            <label class="radio-option" data-role="Hauptleitung">
+              <input type="radio" name="role" value="Hauptleitung"> Hauptleitung
+            </label>
+            <label class="radio-option" data-role="Hilfsleitung">
+              <input type="radio" name="role" value="Hilfsleitung"> Hilfsleitung
+            </label>
+          </div>
+          <div class="error-msg" id="roleError">⚠ Bitte wählen Sie Hauptleitung oder Hilfsleitung.</div>
+        </div>
+
+        <div class="field">
+          <label>Verfügbare Tage und Zeiten *</label>
+          <div id="daysContainer"></div>
+          <div class="error-msg" id="daysError">⚠ Bitte wählen Sie mindestens einen Tag aus.</div>
+          <div class="error-msg" id="timesError">⚠ Bitte geben Sie die Zeit (von/bis) für alle gewählten Tage ein.</div>
+        </div>
+
+        <div class="field">
+          <label for="remarksInput">Bemerkung</label>
+          <textarea id="remarksInput" placeholder="Weitere Informationen, Anforderungen oder Anmerkungen..."></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="goToStep(1)">← Zurück</button>
+          <button class="btn-primary" onclick="validateStep2AndProceed()">Weiter →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div id="step3" class="hidden">
+        <h2 class="section-title">✓ Übersicht deiner Eintragung</h2>
+        <div class="summary-box" id="summaryBox"></div>
+        <div class="btn-row">
+          <button class="btn-secondary" onclick="goToStep(2)">← Zurück</button>
+          <button class="btn-primary" id="submitBtn" onclick="submitForm()">✓ Eintragung bestätigen</button>
+        </div>
+      </div>
+
+      <!-- SUCCESS -->
+      <div id="successScreen" class="success-screen hidden">
+        <div class="success-icon">✓</div>
+        <h2>Deine Eintragung wurde erfolgreich gespeichert!</h2>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  // ==== KONFIGURATION ====
+  const POWER_AUTOMATE_URL = 'https://script.google.com/macros/s/AKfycbwWPw5UhvlXV7pDovMP4homSKEJBIsQ4NVxMU1EJ-0HTfaajZPjrBZ9zr3V8Y-0KMo/exec';
+
+  // ==== STATE ====
+  const COURSES = ['Krebs', 'Seepferd', 'Frosch', 'Pinguin', 'Schwimmschule'];
+  const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+
+  let counts = {
+    'Krebs': 2,
+    'Seepferd': 1,
+    'Frosch': 3,
+    'Pinguin': 2,
+    'Schwimmschule': 1
+  };
+
+  let state = {
+    selectedCourse: null,
+    name: '',
+    role: null,
+    days: {}, // { Montag: {checked: true, from: '09:00', to: '12:00'} }
+    remarks: ''
+  };
+
+  DAYS.forEach(d => state.days[d] = { checked: false, from: '', to: '' });
+
+  let currentStep = 1;
+
+  // ==== RENDER COURSES ====
+  function renderCourses() {
+    const grid = document.getElementById('courseGrid');
+    grid.innerHTML = '';
+    COURSES.forEach(course => {
+      const card = document.createElement('div');
+      card.className = 'course-card' + (state.selectedCourse === course ? ' selected' : '');
+      card.onclick = () => selectCourse(course);
+      const count = counts[course];
+      const label = count === 1 ? '1 Eintrag' : count + ' Einträge';
+      card.innerHTML = `
+        <div class="course-left">
+          <div class="radio-dot"></div>
+          <div class="course-name">${course}</div>
+        </div>
+        <div class="counter">👥 ${label}</div>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function selectCourse(course) {
+    state.selectedCourse = course;
+    document.getElementById('step1Error').classList.remove('show');
+    renderCourses();
+  }
+
+  // ==== RENDER DAYS ====
+  function renderDays() {
+    const container = document.getElementById('daysContainer');
+    container.innerHTML = '';
+    DAYS.forEach(day => {
+      const dayState = state.days[day];
+      const card = document.createElement('div');
+      card.className = 'day-card';
+      card.innerHTML = `
+        <label class="day-checkbox">
+          <input type="checkbox" ${dayState.checked ? 'checked' : ''} onchange="toggleDay('${day}', this.checked)">
+          ${day}
+        </label>
+        <div class="time-group">
+          <label class="time-label">Von</label>
+          <input type="time" value="${dayState.from}" ${dayState.checked ? '' : 'disabled'} onchange="setTime('${day}', 'from', this.value)">
+        </div>
+        <div class="time-group">
+          <label class="time-label">Bis</label>
+          <input type="time" value="${dayState.to}" ${dayState.checked ? '' : 'disabled'} onchange="setTime('${day}', 'to', this.value)">
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function toggleDay(day, checked) {
+    state.days[day].checked = checked;
+    if (!checked) {
+      state.days[day].from = '';
+      state.days[day].to = '';
+    }
+    renderDays();
+  }
+
+  function setTime(day, field, value) {
+    state.days[day][field] = value;
+  }
+
+  // ==== ROLE ====
+  document.addEventListener('change', (e) => {
+    if (e.target.name === 'role') {
+      state.role = e.target.value;
+      document.querySelectorAll('.radio-option').forEach(el => {
+        el.classList.toggle('selected', el.dataset.role === state.role);
+      });
+      document.getElementById('roleError').classList.remove('show');
+      document.getElementById('roleField').classList.remove('has-error');
+    }
+  });
+
+  // ==== NAVIGATION ====
+  function goToStep(step) {
+    if (step === 2 && currentStep === 1) {
+      if (!state.selectedCourse) {
+        document.getElementById('step1Error').classList.add('show');
+        return;
+      }
+      document.getElementById('step1Error').classList.remove('show');
+    }
+
+    currentStep = step;
+    document.getElementById('step1').classList.toggle('hidden', step !== 1);
+    document.getElementById('step2').classList.toggle('hidden', step !== 2);
+    document.getElementById('step3').classList.toggle('hidden', step !== 3);
+
+    document.querySelectorAll('.step').forEach(el => {
+      const s = parseInt(el.dataset.step);
+      el.classList.toggle('active', s === step);
+      el.classList.toggle('done', s < step);
+    });
+
+    document.getElementById('progressFill').style.width = (step / 3 * 100) + '%';
+
+    if (step === 2) {
+      state.name = document.getElementById('nameInput').value;
+      renderDays();
+      document.getElementById('nameInput').value = state.name;
+    }
+    if (step === 3) {
+      renderSummary();
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ==== VALIDATION STEP 2 ====
+  function validateStep2AndProceed() {
+    state.name = document.getElementById('nameInput').value.trim();
+    state.remarks = document.getElementById('remarksInput').value;
+
+    let valid = true;
+    const errorBanner = document.getElementById('step2Error');
+    let errorMessages = [];
+
+    // reset
+    document.getElementById('nameField').classList.remove('has-error');
+    document.getElementById('nameError').classList.remove('show');
+    document.getElementById('roleField').classList.remove('has-error');
+    document.getElementById('roleError').classList.remove('show');
+    document.getElementById('daysError').classList.remove('show');
+    document.getElementById('timesError').classList.remove('show');
+    errorBanner.classList.remove('show');
+
+    if (!state.name) {
+      document.getElementById('nameField').classList.add('has-error');
+      document.getElementById('nameError').classList.add('show');
+      errorMessages.push('⚠ Bitte geben Sie deinen Namen ein.');
+      valid = false;
+    }
+
+    if (!state.role) {
+      document.getElementById('roleField').classList.add('has-error');
+      document.getElementById('roleError').classList.add('show');
+      errorMessages.push('⚠ Bitte wählen Sie Hauptleitung oder Hilfsleitung.');
+      valid = false;
+    }
+
+    const checkedDays = DAYS.filter(d => state.days[d].checked);
+    if (checkedDays.length === 0) {
+      document.getElementById('daysError').classList.add('show');
+      errorMessages.push('⚠ Bitte wählen Sie mindestens einen Tag aus.');
+      valid = false;
+    } else {
+      const incompleteDays = checkedDays.filter(d => !state.days[d].from || !state.days[d].to);
+      if (incompleteDays.length > 0) {
+        document.getElementById('timesError').classList.add('show');
+        incompleteDays.forEach(d => {
+          errorMessages.push(`⚠ Bitte geben Sie die Zeit (von/bis) für ${d} ein.`);
+        });
+        valid = false;
+      }
+    }
+
+    if (!valid) {
+      errorBanner.textContent = errorMessages[0];
+      errorBanner.classList.add('show');
+      return;
+    }
+
+    goToStep(3);
+  }
+
+  // ==== SUMMARY ====
+  function renderSummary() {
+    const box = document.getElementById('summaryBox');
+    const checkedDays = DAYS.filter(d => state.days[d].checked);
+
+    let daysHtml = checkedDays.map(d =>
+      `<div class="line">${d}: ${state.days[d].from} - ${state.days[d].to}</div>`
+    ).join('');
+
+    box.innerHTML = `
+      <div class="summary-block">
+        <h3>Deine ausgewählten Kurse</h3>
+        <p>✓ ${state.selectedCourse}</p>
+      </div>
+      <div class="summary-block">
+        <h3>Dein Name</h3>
+        <p>${escapeHtml(state.name)}</p>
+      </div>
+      <div class="summary-block">
+        <h3>Deine Rolle</h3>
+        <p>${state.role}</p>
+      </div>
+      <div class="summary-block">
+        <h3>Verfügbare Tage und Zeiten</h3>
+        ${daysHtml}
+      </div>
+      <div class="summary-block">
+        <h3>Bemerkung</h3>
+        <p>${state.remarks ? escapeHtml(state.remarks) : '(keine Bemerkung)'}</p>
+      </div>
+    `;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ==== SUBMIT ====
+  async function submitForm() {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gesendet...';
+
+    const times = {};
+    DAYS.forEach(d => {
+      const dayState = state.days[d];
+      times[d] = dayState.checked ? { from: dayState.from, to: dayState.to } : null;
+    });
+
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const timestamp = `${pad(now.getDate())}.${pad(now.getMonth()+1)}.${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    const payload = {
+      name: state.name,
+      courses: state.selectedCourse,
+      role: state.role,
+      times: times,
+      remarks: state.remarks || '',
+      timestamp: timestamp
+    };
+
+    try {
+      await fetch(POWER_AUTOMATE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      // Offline-Fallback: lokal speichern
+      try {
+        const queue = JSON.parse(localStorage.getItem('schwimmkurse_offline_queue') || '[]');
+        queue.push(payload);
+        localStorage.setItem('schwimmkurse_offline_queue', JSON.stringify(queue));
+      } catch (e) { /* localStorage nicht verfügbar */ }
+    }
+
+    // Zähler erhöhen
+    counts[state.selectedCourse] = (counts[state.selectedCourse] || 0) + 1;
+
+    // Erfolgsmeldung anzeigen
+    document.getElementById('step3').classList.add('hidden');
+    document.getElementById('successScreen').classList.remove('hidden');
+
+    setTimeout(() => {
+      resetForm();
+    }, 2000);
+  }
+
+  function resetForm() {
+    state = {
+      selectedCourse: null,
+      name: '',
+      role: null,
+      days: {},
+      remarks: ''
+    };
+    DAYS.forEach(d => state.days[d] = { checked: false, from: '', to: '' });
+
+    document.getElementById('nameInput').value = '';
+    document.getElementById('remarksInput').value = '';
+    document.querySelectorAll('input[name="role"]').forEach(r => r.checked = false);
+    document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = false;
+    submitBtn.textContent = '✓ Eintragung bestätigen';
+
+    document.getElementById('successScreen').classList.add('hidden');
+
+    renderCourses();
+    renderDays();
+    goToStep(1);
+  }
+
+  // ==== INIT ====
+  renderCourses();
+  renderDays();
+</script>
+
+</body>
+</html>
