@@ -190,7 +190,7 @@
   }
 
   @media (max-width: 400px) {
-    body { padding: 6px; }
+    body { padding: 10px; }
     .content { padding: 16px 12px; }
     header { padding: 18px 12px; }
     header h1 { font-size: 1.5rem; }
@@ -205,6 +205,7 @@
     .btn-row button { padding: 12px 14px; font-size: 0.9rem; }
     .radio-group { gap: 8px; }
     .radio-option { padding: 8px 10px; }
+    .day-card { padding: 12px; }
   }
 
   h2.section-title {
@@ -478,8 +479,16 @@
       gap: 8px;
     }
     .time-slot-row {
-      grid-template-columns: 1fr 1fr auto;
+      grid-template-columns: 1fr 1fr;
       gap: 8px;
+      position: relative;
+      padding-right: 36px;
+    }
+    .remove-time-btn {
+      position: absolute;
+      top: 6px;
+      right: 0;
+      padding: 4px;
     }
   }
 
@@ -728,7 +737,7 @@
         </div>
 
         <div class="info-box hidden" id="multiCourseHint">
-          ℹ️ Du hast mehrere Kurse ausgewählt. Falls die Zeiten je nach Kurs unterschiedlich sind, gib das bitte kurz im Feld "Bemerkung" unten an (z. B. welcher Tag/Zeit zu welchem Kurs gehört).
+          ℹ️ Du hast mehrere Kurse ausgewählt. Falls es dir wichtig ist, welcher Kurs zu welcher Zeit stattfindet, kannst du das gerne im Feld "Bemerkung" unten angeben. Ist es dir egal, kannst du dieses Feld auch einfach leer lassen.
         </div>
 
         <div class="field">
